@@ -1,10 +1,10 @@
-# 🏥 Hospital Biomedical Data Pipeline Automation Engine
+# Hospital Biomedical Data Pipeline Automation Engine
 
 > **Enterprise-Grade ETL Data Engineering Framework** built with Python, Pandas, NumPy, and ReportLab.
 
 ---
 
-## 📋 Project Overview
+##  Project Overview
 This project is a high-performance data analytics pipeline designed to ingest, clean, and analyze hospital medical equipment logs. It replaces manual spreadsheet work with **automated Python scripts** that process maintenance records in milliseconds using vectorized operations.
 
 **Key Engineering Capabilities:**
@@ -15,10 +15,11 @@ This project is a high-performance data analytics pipeline designed to ingest, c
 
 ---
 
-## 📊 Live Visual Analytics Output
+## Live Visual Analytics Output
 *This chart is generated automatically by the Matplotlib engine during the pipeline run:*
 
-![Clinical Risk Analysis Chart](clinical_risk_chart.png)
+<img width="2000" height="900" alt="image" src="https://github.com/user-attachments/assets/a52195d8-4e9f-408a-9c69-4167c2623b19" />
+
 
 ---
 
