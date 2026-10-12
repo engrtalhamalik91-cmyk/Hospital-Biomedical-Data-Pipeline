@@ -8,10 +8,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 
-# =========================================================================
-# 💾 PHASE 1: HIGH-PERFORMANCE INGESTION & DATA CLEANING
-# =========================================================================
-# Target raw source files matching exactly your workspace directory files
+
 registry_file = "equipment_registry.csv"
 logs_file = "maintenance_failure_logs.csv"
 
@@ -20,11 +17,10 @@ output_excel_file = "cleaned_service_operations_audit.xlsx"
 output_pdf_report = "Executive_AI_Clinical_Risk_Report.pdf"
 output_standalone_chart = "clinical_risk_chart.png"
 
-# Vectorized Ingestion: Direct flat file streaming into Pandas DataFrames
+
 registry_df = pd.read_csv(registry_file)
 logs_df = pd.read_csv(logs_file)
 
-# Vectorized String Processing: Trimming spaces and normalising layout keys
 registry_df['Device ID'] = registry_df['Device ID'].str.strip().str.upper()
 registry_df['Equipment Name'] = registry_df['Equipment Name'].str.strip()
 registry_df['Base Contract Value'] = pd.to_numeric(registry_df['Base Contract Value'], errors='coerce').fillna(0.0)
@@ -35,29 +31,23 @@ logs_df['Patients Delayed'] = pd.to_numeric(logs_df['Patients Delayed'], errors=
 logs_df['Part Replacement Cost'] = pd.to_numeric(logs_df['Part Replacement Cost'], errors='coerce')
 logs_df['Service Repair Charge'] = pd.to_numeric(logs_df['Service Repair Charge'], errors='coerce')
 
-# Trapping and isolation of raw database corruption leaks (unregistered devices)
+
 data_corruption_leaks = int(logs_df['Device ID'].isin(registry_df['Device ID']).value_counts().get(False, 0))
 
-# =========================================================================
-# 🔄 PHASE 2: RELATIONAL MERGING & STATISTICAL OPERATIONS
-# =========================================================================
-# Implementing high-speed 1-to-1 cross-reference intersection inner merge join
 merged_df = pd.merge(registry_df, logs_df, on='Device ID', how='inner')
 
-# Quality constraint validation check assignment
 merged_df['Operational Audit Status'] = np.where(
     (merged_df['Downtime Hours'].isna()) | (merged_df['Downtime Hours'] <= 0) | (merged_df['Downtime Hours'] > 168),
     "FAILED QUALITY AUDIT: OPERATIONAL ANOMALY",
     "OPERATIONAL PERFORMANCE MONITORED: PASSED"
 )
 
-# Enforcing standard evaluation fallback threshold boundaries on corrupted lines
 merged_df['Downtime Hours'] = np.where(merged_df['Operational Audit Status'].str.contains("FAILED"), 0, merged_df['Downtime Hours']).astype(int)
 merged_df['Patients Delayed'] = np.where(merged_df['Operational Audit Status'].str.contains("FAILED"), 0, merged_df['Patients Delayed']).astype(int)
 merged_df['Part Replacement Cost'] = np.where(merged_df['Operational Audit Status'].str.contains("FAILED"), 0.0, merged_df['Part Replacement Cost'])
 merged_df['Service Repair Charge'] = np.where(merged_df['Operational Audit Status'].str.contains("FAILED"), 0.0, merged_df['Service Repair Charge'])
 
-# Global portfolio vector calculations data aggregations
+
 valid_records_processed = int(merged_df[merged_df['Operational Audit Status'].str.contains("PASSED")].shape[0])
 total_downtime_hours = int(merged_df['Downtime Hours'].sum())
 total_patients_impacted = int(merged_df['Patients Delayed'].sum())
@@ -65,7 +55,7 @@ total_parts_cost = float(merged_df['Part Replacement Cost'].sum())
 total_repair_service_cost = float(merged_df['Service Repair Charge'].sum())
 total_earned_service_contracts = float(merged_df[merged_df['Operational Audit Status'].str.contains("PASSED")]['Base Contract Value'].sum())
 
-# Tracking absolute extreme peak defect nodes tracking coordinates
+
 if valid_records_processed > 0:
     worst_down_row = merged_df.loc[merged_df['Downtime Hours'].idxmax()]
     highest_downtime_val = int(worst_down_row['Downtime Hours'])
@@ -78,7 +68,7 @@ else:
     highest_downtime_val, worst_performing_device = 0, "N/A"
     highest_patient_impact_val, worst_patient_impact_device = 0, "N/A"
 
-# Sorting, structuring and filtering data layout column fields before output generations
+
 final_headers = ["Device ID", "Equipment Name", "Downtime (Hours)", "Patients Suffered", "Part Replacement Cost ($)", "Direct Service Cost ($)", "Contract Portfolio Return ($)", "Operational Audit Status"]
 export_df = merged_df.rename(columns={
     "Downtime Hours": "Downtime (Hours)",
@@ -88,9 +78,7 @@ export_df = merged_df.rename(columns={
     "Base Contract Value": "Contract Portfolio Return ($)"
 })[final_headers]
 
-# =========================================================================
-# 📈 PHASE 3: VECTOR GRAPHICS GENERATION (Matplotlib Plot PNG Chart)
-# =========================================================================
+
 passed_df = merged_df[merged_df['Operational Audit Status'].str.contains("PASSED")]
 
 plt.figure(figsize=(10, 4.5))
@@ -104,12 +92,10 @@ plt.tight_layout()
 plt.savefig(output_standalone_chart, dpi=200)
 plt.close()
 
-# Exporting clean database CSV file flat sheet to disk
+
 export_df.to_csv(output_csv_file, index=False)
 
-# =========================================================================
-# 📊 PHASE 4: BINARY EXCEL WORKBOOK WORKSHEET LOAD & AUTOMATIC STYLING
-# =========================================================================
+
 export_df.to_excel(output_excel_file, index=False, sheet_name="Operational Audit")
 
 wb = openpyxl.load_workbook(output_excel_file)
@@ -121,7 +107,7 @@ for col_num in range(1, len(final_headers) + 1):
 excel_img_target = OpenpyxlImage(output_standalone_chart)
 ws.add_image(excel_img_target, "J3")
 
-# Sizing Matrix Loop: Auto-scaling columns width layout configurations parameters
+
 for col in ws.columns:
     max_len = max(len(str(cell.value or '')) for cell in col)
     col_letter = openpyxl.utils.get_column_letter(col[0].column)
@@ -129,9 +115,7 @@ for col in ws.columns:
 
 wb.save(output_excel_file)
 
-# =========================================================================
-# 🤖 PHASE 5: BUSINESS INTELLIGENCE AUTOMATED TEXT GENERATION
-# =========================================================================
+
 avg_downtime_per_device = total_downtime_hours / valid_records_processed if valid_records_processed > 0 else 0
 total_hardware_expenses = total_parts_cost + total_repair_service_cost
 net_service_yield = total_earned_service_contracts - total_hardware_expenses
